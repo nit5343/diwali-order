@@ -5,34 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Diwali Group Order</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d0b08'/%3E%3Cg fill='none' stroke='%23ffd36b' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M16 3.5a12.5 12.5 0 0 1 12.2 9.8'/%3E%3Cpath d='M16 3.5a12.5 12.5 0 0 1 12.2 9.8' transform='rotate(120 16 16)'/%3E%3Cpath d='M16 3.5a12.5 12.5 0 0 1 12.2 9.8' transform='rotate(240 16 16)'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='5.6' fill='%23f5a623'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23fffaf0'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#060609">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: slim sticky top bar, a status strip (lock countdown + who is signed in), segmented tabs and filters,
    a product grid, and a floating cart bar that opens a bottom sheet on phones and a drawer on desktop. */
 :root {
-  --bg: #f6f6f7; --surface: #ffffff; --surface-2: #f0f0f2; --ink: #121216; --ink-2: #3a3a44; --muted: #6e6e7a; --line: #e5e5ea;
-  --primary: #121216; --on-primary: #ffffff; --gold: #f2a516; --gold-soft: #fff4dc; --gold-ink: #7a4d00;
-  --ok: #14804a; --ok-soft: #e6f6ed; --err: #c2410c; --err-soft: #fdeee6;
-  --shadow-sm: 0 1px 2px rgba(18,18,22,.05); --shadow: 0 1px 2px rgba(18,18,22,.04), 0 8px 24px rgba(18,18,22,.07);
+  --bg: #0b0b0f; --surface: #15151b; --surface-2: #1e1e26; --ink: #f3f3f6; --ink-2: #c9c9d3; --muted: #8f8f9d; --line: #272730;
+  --header: #060609; --primary: #f5a623; --on-primary: #1a1100; --gold: #f5a623; --gold-soft: #2b2110; --gold-ink: #ffcd6b;
+  --ok: #4ccf8a; --ok-soft: #10261a; --err: #ff8a66; --err-soft: #2c160f; --tile: #f4f4f6;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4); --shadow: 0 1px 2px rgba(0,0,0,.35), 0 10px 28px rgba(0,0,0,.45);
   --font: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --r: 14px; --ease: cubic-bezier(.2,.7,.2,1);
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0d0d10; --surface: #16161b; --surface-2: #1e1e25; --ink: #f2f2f5; --ink-2: #c9c9d2; --muted: #9696a3; --line: #2a2a33;
-  --primary: #f2f2f5; --on-primary: #121216; --gold-soft: #2c2210; --gold-ink: #ffcf6e;
-  --ok: #4cc488; --ok-soft: #12261b; --err: #ff8f6b; --err-soft: #2d1710;
-  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #0d0d10; --surface: #16161b; --surface-2: #1e1e25; --ink: #f2f2f5; --ink-2: #c9c9d2; --muted: #9696a3; --line: #2a2a33;
-  --primary: #f2f2f5; --on-primary: #121216; --gold-soft: #2c2210; --gold-ink: #ffcf6e;
-  --ok: #4cc488; --ok-soft: #12261b; --err: #ff8f6b; --err-soft: #2d1710;
-  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); color-scheme: dark }
 
 * { box-sizing: border-box }
 html { -webkit-text-size-adjust: 100% }
 body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--font); margin: 0; padding-bottom: 110px; -webkit-font-smoothing: antialiased }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg) }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--header) }
 .wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
 button, input, textarea, select { font: inherit; color: inherit }
 button { cursor: pointer; -webkit-tap-highlight-color: transparent }
@@ -41,8 +34,8 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent }
 [hidden] { display: none !important }
 
 /* Top bar */
-.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px); border-bottom: 1px solid transparent; transition: border-color .2s }
-.top.scrolled { border-bottom-color: var(--line) }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--header); border-bottom: 1px solid var(--line); box-shadow: 0 6px 24px rgba(0,0,0,0); transition: box-shadow .25s }
+.top.scrolled { box-shadow: 0 6px 24px rgba(0,0,0,.45) }
 .top .wrap { height: 60px; display: flex; align-items: center; gap: 12px }
 .top .wrap { position: relative }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 }
@@ -51,14 +44,14 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent }
 .iconbtn:active { transform: scale(.94) }
 .iconbtn svg { width: 17px; height: 17px }
 .on-dot { position: absolute; top: 6px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); border: 2px solid var(--surface) }
-.searchbox { position: absolute; inset: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); display: flex; align-items: center; gap: 10px; z-index: 5; background: var(--bg); animation: searchin .22s var(--ease) both; margin: 0 }
+.searchbox { position: absolute; inset: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); display: flex; align-items: center; gap: 10px; z-index: 5; background: var(--header); animation: searchin .22s var(--ease) both; margin: 0 }
 .searchbox svg { width: 18px; height: 18px; color: var(--muted); flex: none; margin-left: 4px }
 .searchbox input { flex: 1; min-width: 0; height: 40px; border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; background: var(--surface); font-size: 16px }
 .searchbox input:focus { outline: none; border-color: var(--ink-2); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ink) 8%, transparent) }
 .searchbox button { border: 0; background: none; font-weight: 600; font-size: 14px; padding: 8px 4px; flex: none }
 @keyframes searchin { from { opacity: 0; transform: translateY(-6px) } }
-.mark { width: 32px; height: 32px; border-radius: 10px; background: var(--primary); display: grid; place-items: center; flex: none }
-.mark svg { width: 18px; height: 18px; animation: twinkle 3.2s ease-in-out infinite }
+.mark { width: 36px; height: 36px; border-radius: 11px; background: radial-gradient(circle at 50% 45%, #2a1d08, #0d0b08 70%); border: 1px solid #2c2416; display: grid; place-items: center; flex: none; box-shadow: 0 0 18px rgba(245,166,35,.18) }
+.mark svg { width: 30px; height: 30px; overflow: visible; filter: drop-shadow(0 0 3px rgba(255,190,80,.55)) }
 .brand b { display: block; font-weight: 700; font-size: 16px; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .brand small { display: block; font-size: 11.5px; color: var(--muted); font-weight: 500; margin-top: -2px }
 .acct { position: relative }
@@ -99,10 +92,10 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent }
 .bar { position: sticky; top: calc(60px + env(safe-area-inset-top, 0px)); z-index: 15; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding-block: 10px; display: flex; gap: 8px; align-items: center; margin-top: 4px }
 .bar .chips { flex: 1; min-width: 0; margin: 0; padding: 0; mask-image: linear-gradient(90deg, #000 92%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent) }
 .sortsel { flex: none; height: 32px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 500; max-width: 120px }
-.seg { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; background: var(--surface-2); border-radius: 12px; padding: 3px; width: 240px; flex: none }
+.seg { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; background: #16161c; border-radius: 12px; padding: 3px; width: 240px; flex: none }
 .seg button { position: relative; z-index: 1; border: 0; background: none; padding: 6px 10px; font-weight: 600; font-size: 13.5px; color: var(--muted); border-radius: 9px; transition: color .2s; display: flex; align-items: center; justify-content: center; gap: 2px; white-space: nowrap }
 .seg button[aria-selected="true"] { color: var(--ink) }
-.seg .ind { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); background: var(--surface); border-radius: 9px; box-shadow: var(--shadow-sm); transition: transform .35s var(--ease) }
+.seg .ind { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); background: #2a2a34; border-radius: 9px; box-shadow: var(--shadow-sm); transition: transform .35s var(--ease) }
 .seg[data-tab="group"] .ind { transform: translateX(100%) }
 .pill { font-size: 11px; font-weight: 700; background: var(--gold); color: #2a1a00; border-radius: 999px; padding: 0 7px; line-height: 18px }
 .filters { display: flex; gap: 8px }
@@ -125,8 +118,8 @@ section.cat h2 small { font-weight: 500; letter-spacing: 0 }
 @media (max-width: 640px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px } }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); display: flex; flex-direction: column; overflow: hidden; transition: transform .25s var(--ease), box-shadow .25s, border-color .2s; animation: rise .45s var(--ease) both; animation-delay: calc(var(--i, 0) * 28ms) }
 @media (hover: hover) { .card:hover { transform: translateY(-3px); box-shadow: var(--shadow) } }
-.card.in { border-color: color-mix(in srgb, var(--ink) 40%, var(--line)) }
-.pic { position: relative; aspect-ratio: 1; background: #fafafa; display: grid; place-items: center; max-width: 100%; overflow: hidden }
+.card.in { border-color: color-mix(in srgb, var(--gold) 70%, var(--line)) }
+.pic { position: relative; aspect-ratio: 1; background: var(--tile); display: grid; place-items: center; max-width: 100%; overflow: hidden }
 .pic img { width: 100%; height: 100%; object-fit: contain; padding: 8px; transition: transform .4s var(--ease) }
 @media (hover: hover) { .card:hover .pic img { transform: scale(1.04) } }
 .pic .none { color: #9a9aa6; font-size: 12px }
@@ -164,7 +157,7 @@ section.cat h2 small { font-weight: 500; letter-spacing: 0 }
 /* Floating cart bar */
 .cartbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 18; padding: 0 max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); pointer-events: none; transform: translateY(130%); transition: transform .45s var(--ease) }
 .cartbar.show { transform: none }
-.cb { pointer-events: auto; max-width: 720px; margin: 0 auto; background: var(--primary); color: var(--on-primary); border-radius: 18px; padding: 10px 10px 10px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.25); cursor: pointer }
+.cb { pointer-events: auto; max-width: 720px; margin: 0 auto; background: rgba(28,28,36,.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid #33333f; color: var(--ink); border-radius: 18px; padding: 10px 10px 10px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.25); cursor: pointer }
 .cb .bag { position: relative; width: 36px; height: 36px; border-radius: 10px; background: rgba(127,127,127,.22); display: grid; place-items: center; flex: none }
 .cb .bag svg { width: 18px; height: 18px }
 .cb .bag i { position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; border-radius: 999px; background: var(--gold); color: #2a1a00; font: 700 11px/20px var(--font); text-align: center; padding: 0 5px; font-style: normal }
@@ -175,11 +168,11 @@ section.cat h2 small { font-weight: 500; letter-spacing: 0 }
 .save[data-state="saved"]::before { content: "✓ "; color: #6be09a }
 .save[data-state="saving"]::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; margin-right: 6px; vertical-align: -1px; animation: spin .7s linear infinite }
 .save[data-state="error"] { opacity: 1; color: #ffb39b; cursor: pointer; text-decoration: underline }
-.cb .go { border: 0; background: var(--on-primary); color: var(--primary); font-weight: 700; padding: 10px 16px; border-radius: 12px; font-size: 14px; transition: transform .12s }
+.cb .go { border: 0; background: var(--gold); color: var(--on-primary); font-weight: 700; padding: 10px 16px; border-radius: 12px; font-size: 14px; transition: transform .12s }
 .cb .go:active { transform: scale(.96) }
 
 /* Sheet: bottom sheet on phones, drawer on wider screens */
-.sheet { position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center; background: rgba(8,8,12,.45); animation: fade .25s ease both }
+.sheet { position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center; background: rgba(0,0,0,.6); animation: fade .25s ease both }
 .panel { background: var(--surface); width: 100%; max-height: 90vh; overflow-y: auto; overscroll-behavior: contain; border-radius: 22px 22px 0 0; padding: 8px max(18px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)); display: grid; gap: 14px; align-content: start; animation: up .38s var(--ease) both }
 .grab { width: 40px; height: 4px; border-radius: 4px; background: var(--line); justify-self: center; margin: 4px 0 2px }
 @media (min-width: 760px) {
@@ -195,7 +188,7 @@ section.cat h2 small { font-weight: 500; letter-spacing: 0 }
 .x { border: 0; background: var(--surface-2); border-radius: 999px; width: 34px; height: 34px; font-size: 18px; line-height: 1; display: grid; place-items: center }
 .lines { display: grid; gap: 12px }
 .line { display: grid; grid-template-columns: 52px minmax(0, 1fr) 112px; gap: 12px; align-items: center; animation: rise .3s var(--ease) both }
-.line img, .line .ph0 { width: 52px; height: 52px; object-fit: contain; background: #fafafa; border-radius: 10px; border: 1px solid var(--line); padding: 3px }
+.line img, .line .ph0 { width: 52px; height: 52px; object-fit: contain; background: var(--tile); border-radius: 10px; border: 1px solid var(--line); padding: 3px }
 .line .n { font-size: 13.5px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere }
 .line .n small { display: block; color: var(--muted); font-weight: 500; font-size: 12px; margin-top: 2px }
 .line .step, .line .lockedq { height: 34px }
@@ -211,7 +204,7 @@ section.cat h2 small { font-weight: 500; letter-spacing: 0 }
 .ghost { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 7px 14px; font-weight: 600; font-size: 13.5px }
 .info { display: grid; gap: 14px }
 .info .top2 { display: flex; gap: 14px; align-items: center }
-.info img { width: 96px; height: 96px; object-fit: contain; background: #fafafa; border-radius: 14px; border: 1px solid var(--line); padding: 6px; flex: none }
+.info img { width: 96px; height: 96px; object-fit: contain; background: var(--tile); border-radius: 14px; border: 1px solid var(--line); padding: 6px; flex: none }
 .info .score { font-size: 30px; font-weight: 800; line-height: 1.1 }
 .info h4 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted) }
 .info ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px }
@@ -229,7 +222,7 @@ section.cat h2 small { font-weight: 500; letter-spacing: 0 }
 .carts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start }
 @media (max-width: 720px) { .carts { grid-template-columns: 1fr } }
 .fc { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; animation: rise .4s var(--ease) both; animation-delay: calc(var(--i, 0) * 50ms) }
-.fc.mine { box-shadow: 0 0 0 1.5px var(--ink) }
+.fc.mine { box-shadow: 0 0 0 1.5px var(--gold) }
 .fc .hd { width: 100%; border: 0; background: none; display: flex; align-items: center; gap: 12px; padding: 12px 14px; text-align: left }
 .fc .hd .avatar { width: 36px; height: 36px; font-size: 15px }
 .fc .nm { flex: 1; min-width: 0 }
@@ -244,7 +237,7 @@ section.cat h2 small { font-weight: 500; letter-spacing: 0 }
 .fc .bd > div { overflow: hidden }
 .fc ul { list-style: none; margin: 0; padding: 10px 14px 12px; display: grid; gap: 10px; border-top: 1px solid var(--line) }
 .fc li { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; align-items: center }
-.fc li img, .fc li .ph0 { width: 40px; height: 40px; object-fit: contain; background: #fafafa; border-radius: 8px; border: 1px solid var(--line); padding: 2px }
+.fc li img, .fc li .ph0 { width: 40px; height: 40px; object-fit: contain; background: var(--tile); border-radius: 8px; border: 1px solid var(--line); padding: 2px }
 .ln { font-size: 13px; line-height: 1.3; overflow-wrap: anywhere }
 .ln small { display: block; color: var(--muted); font-size: 12px }
 .plus { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 11px; font-size: 12.5px; font-weight: 600; white-space: nowrap; transition: background .2s, color .2s, transform .12s }
@@ -258,7 +251,7 @@ th { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-s
 td.r, th.r { text-align: right }
 tr:last-child td { border-bottom: 0 }
 
-.toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 45; background: var(--primary); color: var(--on-primary); padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 500; max-width: calc(100% - 32px); box-shadow: var(--shadow); transform: translateX(-50%); animation: toast .3s var(--ease) both }
+.toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 45; background: #f3f3f6; color: #0b0b0f; padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 500; max-width: calc(100% - 32px); box-shadow: var(--shadow); transform: translateX(-50%); animation: toast .3s var(--ease) both }
 
 @keyframes rise { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
 @keyframes pop { from { opacity: .4; transform: scale(.92) } to { opacity: 1; transform: none } }
@@ -280,9 +273,24 @@ tr:last-child td { border-bottom: 0 }
 <body>
 
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <radialGradient id="chCore" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="#fff6d8"/><stop offset=".45" stop-color="#ffc24a"/><stop offset="1" stop-color="#e2541b"/></radialGradient>
+  <linearGradient id="chTrail" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb347" stop-opacity=".35"/><stop offset="1" stop-color="#fff0b8"/></linearGradient>
+</defs><symbol id="chakkar" viewBox="0 0 32 32">
+  <g><animateTransform attributeName="transform" type="rotate" from="0 16 16" to="360 16 16" dur="1.8s" repeatCount="indefinite"/>
+    <path d="M16 3.5a12.5 12.5 0 0 1 12.2 9.8" fill="none" stroke="url(#chTrail)" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M16 3.5a12.5 12.5 0 0 1 12.2 9.8" fill="none" stroke="url(#chTrail)" stroke-width="2.8" stroke-linecap="round" transform="rotate(120 16 16)"/>
+    <path d="M16 3.5a12.5 12.5 0 0 1 12.2 9.8" fill="none" stroke="url(#chTrail)" stroke-width="2.8" stroke-linecap="round" transform="rotate(240 16 16)"/>
+    <circle cx="28.2" cy="13.3" r="1.5" fill="#fff3c4"/><circle cx="28.2" cy="13.3" r="1.5" fill="#fff3c4" transform="rotate(120 16 16)"/><circle cx="28.2" cy="13.3" r="1.5" fill="#fff3c4" transform="rotate(240 16 16)"/>
+    <circle cx="25" cy="6.5" r=".8" fill="#ffd36b"/><circle cx="8.5" cy="25" r=".7" fill="#ff9f43"/><circle cx="5" cy="9.5" r=".6" fill="#ffe7a3"/>
+  </g>
+  <circle cx="16" cy="16" r="5.6" fill="url(#chCore)"/>
+  <circle cx="16" cy="16" r="5.6" fill="none" stroke="#7a2a0c" stroke-width=".8" stroke-dasharray="2 1.6"/>
+  <circle cx="16" cy="16" r="1.7" fill="#fffaf0"/>
+</symbol></svg>
 <header class="top" id="top"><div class="wrap">
   <div class="brand">
-    <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="#f2a516" d="M12 1.5c.6 4.9 2.6 8.9 7.5 10.5-4.9 1.6-6.9 5.6-7.5 10.5-.6-4.9-2.6-8.9-7.5-10.5C9.4 10.4 11.4 6.4 12 1.5z"/></svg></div>
+    <div class="mark" aria-hidden="true"><svg><use href="#chakkar"/></svg></div>
     <div class="bt"><b id="groupName">Diwali Group Order</b><small>Kannan Crackers · Sivakasi rates</small></div>
   </div>
   <div class="seg" id="seg" role="tablist" data-tab="shop">
@@ -388,7 +396,7 @@ tr:last-child td { border-bottom: 0 }
   }
   function gsiReady(fn) { if (window.google && google.accounts && google.accounts.id) fn(); else (gsiReady.q = gsiReady.q || []).push(fn) }
   function renderGsi(el, big) {
-    gsiReady(function () { if (document.body.contains(el)) google.accounts.id.renderButton(el, { type: 'standard', theme: 'outline', shape: 'pill', size: big ? 'large' : 'medium', text: big ? 'continue_with' : 'signin', logo_alignment: 'left' }) });
+    gsiReady(function () { if (document.body.contains(el)) google.accounts.id.renderButton(el, { type: 'standard', theme: 'filled_black', shape: 'pill', size: big ? 'large' : 'medium', text: big ? 'continue_with' : 'signin', logo_alignment: 'left' }) });
   }
   if (live) {
     var t0 = store.get('idt', null);
@@ -454,6 +462,7 @@ tr:last-child td { border-bottom: 0 }
   };
   if (!live) $('demoNote').hidden = false;
 
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.querySelectorAll('svg').forEach(function (s) { if (s.pauseAnimations) s.pauseAnimations() });
   var products = [], byId = {}, cats = [], config = {}, cart = {}, activeCat = '', query = '';
   var me = { email: null, name: null }, myNote = '', sheetMode = '', saveTimer = null, saving = false, dirty = false;
 
@@ -642,7 +651,7 @@ tr:last-child td { border-bottom: 0 }
   function askSignIn() { openSheet('signin') }
   function renderSignIn() {
     $('sheetTitle').textContent = 'Sign in to order';
-    $('sheetBody').innerHTML = '<div class="signin"><div class="mark" style="width:48px;height:48px;border-radius:14px"><svg viewBox="0 0 24 24" style="width:26px;height:26px"><path fill="#f2a516" d="M12 1.5c.6 4.9 2.6 8.9 7.5 10.5-4.9 1.6-6.9 5.6-7.5 10.5-.6-4.9-2.6-8.9-7.5-10.5C9.4 10.4 11.4 6.4 12 1.5z"/></svg></div>' +
+    $('sheetBody').innerHTML = '<div class="signin"><div class="mark" style="width:56px;height:56px;border-radius:16px"><svg style="width:46px;height:46px"><use href="#chakkar"/></svg></div>' +
       '<p>Sign in with Google. Your cart is saved under your email, so it follows you to any phone or laptop.</p>' + gButton('Continue with Google', true) + '</div>';
     mountGsi($('sheetBody'));
   }
