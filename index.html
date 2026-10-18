@@ -59,7 +59,9 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent }
 .gbtn:hover { box-shadow: var(--shadow) }
 .gbtn:active { transform: scale(.97) }
 .gbtn svg { width: 18px; height: 18px }
-.gsi { min-height: 32px; display: flex; align-items: center; justify-content: center }
+.gsi { min-height: 32px; display: flex; align-items: center; justify-content: center; color-scheme: light; background: transparent }
+/* Google's button frame is a light document; matching its color-scheme keeps the browser from painting a white box behind it on a dark page */
+.gsi iframe { color-scheme: light; background: transparent !important }
 .chip-acct { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 12px 4px 4px; max-width: 280px; box-shadow: var(--shadow-sm) }
 .chip-acct .em { font-size: 13px; font-weight: 500; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .avatar { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: #fff; flex: none; background: var(--av, #6b5bd6) }
