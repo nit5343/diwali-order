@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Diwali Group Order</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -508,7 +507,7 @@ tr:last-child td { border-bottom: 0 }
   }
   function cardHTML(p, i) {
     var q = cart[p.id] || 0, pct = p.mrp > p.price ? Math.round((1 - p.price / p.mrp) * 100) : 0;
-    var pic = p.image ? '<img loading="lazy" referrerpolicy="no-referrer" alt="" src="' + esc(p.image) + '" onload="this.classList.add(\'ok\')" onerror="this.classList.add(\'ok\')">' : '<span class="none">No photo</span>';
+    var pic = p.image ? '<img loading="lazy" referrerpolicy="no-referrer" alt="" src="' + esc(p.thumb) + '" onload="this.classList.add(\'ok\')" onerror="if(this.src.indexOf(\'img/\')>-1)this.src=\'' + esc(p.image) + '\';else this.classList.add(\'ok\')">' : '<span class="none">No photo</span>';
     return '<article class="card' + (q ? ' in' : '') + '" id="c' + p.id + '" style="--i:' + Math.min(i, 14) + '"><div class="pic">' + pic +
       (q ? '<span class="badge num">' + q + ' in cart</span>' : '') + (pct ? '<span class="off">−' + pct + '%</span>' : '') + '</div><div class="body">' +
       '<div class="name">' + esc(p.name) + '</div>' + (p.content ? '<div class="pack">' + esc(p.content) + '</div>' : '') +
@@ -611,7 +610,7 @@ tr:last-child td { border-bottom: 0 }
     if (!lines.length) { $('sheetBody').innerHTML = '<p class="empty">' + (isLocked() ? 'You did not order anything.' : 'Your cart is empty.') + '</p>'; return }
     $('sheetBody').innerHTML = '<div class="lines">' + lines.map(function (l, i) {
       t += l.p.price * l.qty;
-      return '<div class="line" style="animation-delay:' + Math.min(i, 10) * 30 + 'ms">' + (l.p.image ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(l.p.image) + '">' : '<span class="ph0"></span>') +
+      return '<div class="line" style="animation-delay:' + Math.min(i, 10) * 30 + 'ms">' + (l.p.image ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(l.p.thumb) + '">' : '<span class="ph0"></span>') +
         '<div class="n">' + esc(l.p.name) + '<small class="num">' + inr(l.p.price) + ' each · ' + inr(l.p.price * l.qty) + '</small></div>' + stepper(l.p.id, l.qty) + '</div>';
     }).join('') + '</div><div class="total"><span>Total</span><b class="num">' + inr(t) + '</b></div>' +
       '<label class="field">Note for the organizer<textarea id="fNote" rows="2" placeholder="Optional"' + (isLocked() ? ' disabled' : '') + '>' + esc(myNote) + '</textarea></label>' +
@@ -751,7 +750,7 @@ tr:last-child td { border-bottom: 0 }
             '<span class="amt num">' + inr(f.amount) + '</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>' +
             '<div class="bd"><div><ul>' + f.lines.map(function (l) {
               var p = byId[l.id];
-              return '<li>' + (p && p.image ? '<img alt="" loading="lazy" referrerpolicy="no-referrer" src="' + esc(p.image) + '">' : '<span class="ph0"></span>') +
+              return '<li>' + (p && p.image ? '<img alt="" loading="lazy" referrerpolicy="no-referrer" src="' + esc(p.thumb) + '">' : '<span class="ph0"></span>') +
                 '<span class="ln">' + esc(l.name) + '<small class="num">' + l.qty + ' × ' + inr(l.qty ? l.amount / l.qty : 0) + ' = ' + inr(l.amount) + '</small></span>' +
                 (canAdd && !mine && p ? '<button class="plus" data-add="' + esc(l.id) + '">+ Add</button>' : '<span></span>') + '</li>';
             }).join('') + '</ul>' + (f.note ? '<p class="fnote">“' + esc(f.note) + '”</p>' : '') + '</div></div></div>';
@@ -778,7 +777,7 @@ tr:last-child td { border-bottom: 0 }
     call('getInitial').then(function (d) {
       config = d.config || {}; me = d.me || { email: null, name: null };
       products = d.products || []; byId = {}; cats = [];
-      products.forEach(function (p) { p.id = String(p.id); byId[p.id] = p; if (cats.indexOf(p.category) < 0) cats.push(p.category) });
+      products.forEach(function (p) { p.id = String(p.id); byId[p.id] = p; if (cats.indexOf(p.category) < 0) cats.push(p.category); p.thumb = live && p.image ? 'img/' + p.id + '.webp' : p.image });
       cart = {}; ((d.order && d.order.items) || []).forEach(function (i) { if (byId[i.id]) cart[i.id] = i.qty });
       myNote = (d.order && d.order.note) || '';
       if (config.groupName) { $('groupName').textContent = config.groupName; document.title = config.groupName }
