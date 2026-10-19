@@ -260,6 +260,13 @@ th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--li
 th { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600 }
 td.r, th.r { text-align: right }
 tr:last-child td { border-bottom: 0 }
+.pid { display: inline-block; min-width: 34px; margin-right: 8px; padding: 1px 6px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: 11.5px; font-weight: 600; text-align: center }
+.qb { font: inherit; color: var(--ink); background: none; border: 0; border-bottom: 1px dashed var(--muted); padding: 2px 0; cursor: pointer }
+.qb:hover, .qb[aria-expanded="true"] { color: var(--gold); border-bottom-color: var(--gold) }
+.pop { position: fixed; z-index: 46; min-width: 170px; max-width: 260px; background: #f3f3f6; color: #0b0b0f; border-radius: 12px; padding: 8px 0; box-shadow: var(--shadow); font-size: 13.5px; animation: pop .15s var(--ease) }
+.pop h5 { margin: 0; padding: 2px 12px 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #6b6b78 }
+.pop div { display: flex; justify-content: space-between; gap: 16px; padding: 4px 12px }
+.pop b { font-variant-numeric: tabular-nums }
 
 .toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 45; background: #f3f3f6; color: #0b0b0f; padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 500; max-width: calc(100% - 32px); box-shadow: var(--shadow); transform: translateX(-50%); animation: toast .3s var(--ease) both }
 
@@ -622,7 +629,7 @@ tr:last-child td { border-bottom: 0 }
   $('close').addEventListener('click', closeSheet);
   $('sheet').addEventListener('click', function (e) { if (e.target === $('sheet')) closeSheet() });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { if (!$('searchBox').hidden) closeSearch(); closeSheet(); closeMenu() }
+    if (e.key === 'Escape') { if (!$('searchBox').hidden) closeSearch(); closeSheet(); closeMenu(); closePop() }
     if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA' && $('groupView').hidden) { e.preventDefault(); openSearch() }
   });
 
@@ -753,12 +760,35 @@ tr:last-child td { border-bottom: 0 }
   }
   function toast(t) { var el = $('toast'); el.hidden = true; void el.offsetWidth; el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true }, 2200) }
   var openCarts = {};
+  // Popover listing who ordered how many of a product; hover on desktop, tap on phones.
+  function closePop() { var p = $('pop'); if (p) { p.remove(); document.querySelectorAll('.qb[aria-expanded="true"]').forEach(function (b) { b.setAttribute('aria-expanded', 'false') }) } }
+  function popWho(btn, p, by, hover) {
+    var open = btn.getAttribute('aria-expanded') === 'true';
+    closePop(); if (open && !hover) return;
+    var el = document.createElement('div'); el.className = 'pop'; el.id = 'pop'; el.setAttribute('role', 'tooltip');
+    el.innerHTML = '<h5>Who ordered</h5>' + by.map(function (b) { return '<div><span>' + esc(b.name) + '</span><b>' + b.qty + '</b></div>' }).join('');
+    document.body.appendChild(el); btn.setAttribute('aria-expanded', 'true');
+    var r = btn.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+    var top = r.bottom + 6 + h > innerHeight - 8 ? r.top - h - 6 : r.bottom + 6;
+    el.style.top = Math.max(8, top) + 'px'; el.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w)) + 'px';
+  }
+  document.addEventListener('click', function (e) { if (!e.target.closest('#pop')) closePop() });
+  addEventListener('scroll', closePop, { passive: true });
   function loadGroup(quiet) {
     if (!quiet) $('groupBody').innerHTML = '<div class="stats">' + [0, 1, 2].map(function () { return '<div class="skel" style="height:70px"><div style="height:100%;border-radius:0"></div></div>' }).join('') + '</div>';
     call('getSummary').then(function (s) {
       $('groupCount').hidden = !s.friends.length; $('groupCount').textContent = s.friends.length;
       if (!s.friends.length) { $('groupBody').innerHTML = '<p class="empty">No carts yet. Start yours from the Shop tab.</p>'; return }
       var items = s.friends.reduce(function (a, f) { return a + f.items }, 0), canAdd = !isLocked() && !!me.email;
+      closePop();
+      // Who ordered each product in the shop list, keyed by product name like the summary's product rows.
+      var who = {};
+      s.friends.forEach(function (f) { f.lines.forEach(function (l) {
+        if (l.soldOut) return;
+        var w = who[l.name] = who[l.name] || { id: l.id, by: [] };
+        w.by.push({ name: f.name, qty: l.qty });
+      }) });
+      Object.keys(who).forEach(function (k) { who[k].by.sort(function (a, b) { return b.qty - a.qty }) });
       $('groupBody').innerHTML =
         '<div class="stats"><div class="stat" style="--i:0"><span>People</span><b class="num">' + s.friends.length + '</b></div>' +
         '<div class="stat" style="--i:1"><span>Items</span><b class="num">' + items + '</b></div>' +
@@ -779,8 +809,18 @@ tr:last-child td { border-bottom: 0 }
         }).join('') + '</div>' +
         '<div class="gh"><h3>What we\'ll order from the shop</h3></div>' +
         '<div class="tblwrap"><table><thead><tr><th>Product</th><th class="r">Qty</th><th class="r">Amount</th></tr></thead><tbody>' +
-        s.products.map(function (p) { return '<tr><td>' + esc(p.name) + '</td><td class="r num">' + p.qty + '</td><td class="r num">' + inr(p.amount) + '</td></tr>' }).join('') +
+        s.products.map(function (p, i) {
+          var w = who[p.name] || { id: '', by: [] };
+          return '<tr><td>' + (w.id ? '<span class="pid num">#' + esc(w.id) + '</span>' : '') + esc(p.name) + '</td><td class="r num"><button class="qb num" data-who="' + i + '" aria-expanded="false" title="' + esc(w.by.map(function (b) { return b.name + ': ' + b.qty }).join(', ')) + '">' + p.qty + '</button></td><td class="r num">' + inr(p.amount) + '</td></tr>';
+        }).join('') +
         '</tbody></table></div>';
+      $('groupBody').querySelectorAll('[data-who]').forEach(function (b) {
+        var p = s.products[b.dataset.who], w = who[p.name] || { by: [] };
+        b.removeAttribute('title');
+        var hov = matchMedia('(hover: hover)').matches;
+        b.onclick = function (e) { e.stopPropagation(); popWho(b, p, w.by, hov) };
+        if (hov) { b.onmouseenter = function () { popWho(b, p, w.by, true) }; b.onmouseleave = function () { closePop() } }
+      });
       $('refresh').onclick = function () { loadGroup() };
       $('groupBody').querySelectorAll('.fc .hd').forEach(function (h) {
         h.onclick = function () { var fc = h.parentNode, o = !fc.classList.contains('open'); fc.classList.toggle('open', o); h.setAttribute('aria-expanded', String(o)); openCarts[fc.dataset.fc] = o };
