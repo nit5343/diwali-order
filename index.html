@@ -150,6 +150,14 @@ section.cat h2 small { font-weight: 500; letter-spacing: 0 }
 .step button:active { background: rgba(127,127,127,.25) }
 .step input { border: 0; background: transparent; color: inherit; text-align: center; width: 100%; font-weight: 700; -moz-appearance: textfield; padding: 0 }
 .step input::-webkit-inner-spin-button { -webkit-appearance: none }
+.card.sold .pic img { filter: grayscale(1); opacity: .55 }
+.card.sold .price { color: var(--muted); text-decoration: line-through }
+.oosb { position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,.72); color: #fff; font-size: 11px; font-weight: 700; border-radius: 6px; padding: 2px 8px; letter-spacing: .02em }
+.oos { color: #ff8a80; font-weight: 600 }
+.ctl .oosq { display: flex; gap: 6px; align-items: center }
+.ctl .oosq .lockedq { flex: 1 }
+.rm { height: 38px; padding: 0 12px; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; font-weight: 600; font-size: 13px }
+.line .rm { height: 34px }
 .lockedq { height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--surface-2); font-size: 13px; font-weight: 600; color: var(--ink-2) }
 .empty { padding: 48px 0; text-align: center; color: var(--muted) }
 .skel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden }
@@ -417,7 +425,7 @@ tr:last-child td { border-bottom: 0 }
   }
 
   // Preview-only backend: simulated Google sign-in plus two clearly marked example carts.
-  var DEMO_EMAIL = 'you@gmail.com', DEMO_LOCK = '2026-10-18T20:00:00+05:30';
+  var DEMO_EMAIL = 'you@gmail.com', DEMO_LOCK = '2026-10-19T18:00:00+05:30';
   var demo = {
     db: function () {
       return store.get('demo3', null) || { signedIn: false, members: { 'ajay@example.com': 'Ajay (example)', 'neeraj@example.com': 'Neeraj (example)' }, orders: {
@@ -477,6 +485,7 @@ tr:last-child td { border-bottom: 0 }
     if (!me.email) return askSignIn();
     if (isLocked()) return toast('Orders are locked');
     q = Math.max(0, Math.min(999, Math.floor(Number(q) || 0)));
+    if (byId[id] && byId[id].soldOut && q > (cart[id] || 0)) { paintCard(id); return toast('Out of stock') }
     if (q) cart[id] = q; else delete cart[id];
     paintCard(id); paintBar(true); scheduleSave();
     if (sheetMode === 'cart') renderCart();
@@ -511,6 +520,9 @@ tr:last-child td { border-bottom: 0 }
 
   function stepper(id, q) {
     if (isLocked()) return q ? '<div class="lockedq num">In your cart · ' + q + '</div>' : '';
+    if (byId[id] && byId[id].soldOut) return q
+      ? '<div class="oosq"><div class="lockedq num"><span class="oos">Out of stock</span>&nbsp;· ' + q + '</div><button class="rm" data-d="-' + q + '" data-id="' + id + '">Remove</button></div>'
+      : '<div class="lockedq oos">Out of stock</div>';
     return q
       ? '<div class="step"><button data-d="-1" data-id="' + id + '" aria-label="One less">−</button><input class="num" inputmode="numeric" value="' + q + '" data-id="' + id + '" aria-label="Quantity"><button data-d="1" data-id="' + id + '" aria-label="One more">+</button></div>'
       : '<button class="add" data-d="1" data-id="' + id + '"><span aria-hidden="true">+</span> Add</button>';
@@ -518,8 +530,8 @@ tr:last-child td { border-bottom: 0 }
   function cardHTML(p, i) {
     var q = cart[p.id] || 0, pct = p.mrp > p.price ? Math.round((1 - p.price / p.mrp) * 100) : 0;
     var pic = p.image ? '<img loading="lazy" referrerpolicy="no-referrer" alt="" src="' + esc(p.thumb) + '" onload="this.classList.add(\'ok\')" onerror="if(this.src.indexOf(\'img/\')>-1)this.src=\'' + esc(p.image) + '\';else this.classList.add(\'ok\')">' : '<span class="none">No photo</span>';
-    return '<article class="card' + (q ? ' in' : '') + '" id="c' + p.id + '" style="--i:' + Math.min(i, 14) + '"><div class="pic">' + pic +
-      (q ? '<span class="badge num">' + q + ' in cart</span>' : '') + (pct ? '<span class="off">−' + pct + '%</span>' : '') + '</div><div class="body">' +
+    return '<article class="card' + (q ? ' in' : '') + (p.soldOut ? ' sold' : '') + '" id="c' + p.id + '" style="--i:' + Math.min(i, 14) + '"><div class="pic">' + pic +
+      (q ? '<span class="badge num">' + q + ' in cart</span>' : '') + (pct ? '<span class="off">−' + pct + '%</span>' : '') + (p.soldOut ? '<span class="oosb">Out of stock</span>' : '') + '</div><div class="body">' +
       '<div class="name">' + esc(p.name) + '</div>' + (p.content ? '<div class="pack">' + esc(p.content) + '</div>' : '') +
       '<div class="meta">' + rateHTML(p) + (p.video ? '<a class="vid" href="' + esc(p.video) + '" target="_blank" rel="noopener">▶ Video</a>' : '') + '</div>' +
       '<div class="prices"><span class="price num">' + inr(p.price) + '</span>' + (pct ? '<span class="mrp num">' + inr(p.mrp) + '</span>' : '') + '</div>' +
@@ -541,12 +553,12 @@ tr:last-child td { border-bottom: 0 }
   var lastTotal = -1;
   function paintBar(bump) {
     var lines = cartLines(), t = 0, c = 0;
-    lines.forEach(function (l) { t += l.p.price * l.qty; c += l.qty });
+    lines.forEach(function (l) { if (l.p.soldOut) return; t += l.p.price * l.qty; c += l.qty });
     $('barTotal').textContent = inr(t); $('barCount').textContent = c;
     if (bump && t !== lastTotal) { var b = $('barTotal'); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump') }
     lastTotal = t;
     $('review').textContent = isLocked() ? 'View order' : 'View cart';
-    $('cartbar').classList.toggle('show', c > 0 && $('groupView').hidden);
+    $('cartbar').classList.toggle('show', lines.length > 0 && $('groupView').hidden);
   }
 
   function renderList() {
@@ -554,12 +566,12 @@ tr:last-child td { border-bottom: 0 }
     var match = function (p) { return (!activeCat || p.category === activeCat) && (!q || (p.name + ' ' + p.category).toLowerCase().indexOf(q) >= 0) };
     var section = function (t, ps) { return '<section class="cat"><h2>' + esc(t) + ' <small>' + ps.length + '</small></h2><div class="grid">' + ps.map(function (p) { return cardHTML(p, n++) }).join('') + '</div></section>' };
     if (sortBy) {
-      var ps = products.filter(match).sort(sortBy === 'price'
-        ? function (a, b) { return a.price - b.price }
-        : function (a, b) { return (b.rating == null ? -1 : b.rating) - (a.rating == null ? -1 : a.rating) });
+      var ps = products.filter(match).sort(function (a, b) {
+        return (a.soldOut ? 1 : 0) - (b.soldOut ? 1 : 0) || (sortBy === 'price' ? a.price - b.price : (b.rating == null ? -1 : b.rating) - (a.rating == null ? -1 : a.rating));
+      });
       html = ps.length ? section(sortBy === 'price' ? 'By price' : 'Top rated', ps) : '';
     } else cats.forEach(function (cat) {
-      var ps = products.filter(function (p) { return p.category === cat && match(p) });
+      var ps = products.filter(function (p) { return p.category === cat && match(p) }).sort(function (a, b) { return (a.soldOut ? 1 : 0) - (b.soldOut ? 1 : 0) });
       if (ps.length) html += section(title(cat), ps);
     });
     $('list').innerHTML = html || '<p class="empty">Nothing matches “' + esc(query) + '”.</p>';
@@ -619,9 +631,9 @@ tr:last-child td { border-bottom: 0 }
     var lines = cartLines(), t = 0;
     if (!lines.length) { $('sheetBody').innerHTML = '<p class="empty">' + (isLocked() ? 'You did not order anything.' : 'Your cart is empty.') + '</p>'; return }
     $('sheetBody').innerHTML = '<div class="lines">' + lines.map(function (l, i) {
-      t += l.p.price * l.qty;
+      if (!l.p.soldOut) t += l.p.price * l.qty;
       return '<div class="line" style="animation-delay:' + Math.min(i, 10) * 30 + 'ms">' + (l.p.image ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(l.p.thumb) + '">' : '<span class="ph0"></span>') +
-        '<div class="n">' + esc(l.p.name) + '<small class="num">' + inr(l.p.price) + ' each · ' + inr(l.p.price * l.qty) + '</small></div>' + stepper(l.p.id, l.qty) + '</div>';
+        '<div class="n">' + esc(l.p.name) + '<small class="num">' + (l.p.soldOut ? '<span class="oos">Out of stock</span> · not counted in total' : inr(l.p.price) + ' each · ' + inr(l.p.price * l.qty)) + '</small></div>' + stepper(l.p.id, l.qty) + '</div>';
     }).join('') + '</div><div class="total"><span>Total</span><b class="num">' + inr(t) + '</b></div>' +
       '<label class="field">Note for the organizer<textarea id="fNote" rows="2" placeholder="Optional"' + (isLocked() ? ' disabled' : '') + '>' + esc(myNote) + '</textarea></label>' +
       '<div class="note" id="cartState"></div><button class="primary" id="doneBtn">Done</button>';
@@ -761,8 +773,8 @@ tr:last-child td { border-bottom: 0 }
             '<div class="bd"><div><ul>' + f.lines.map(function (l) {
               var p = byId[l.id];
               return '<li>' + (p && p.image ? '<img alt="" loading="lazy" referrerpolicy="no-referrer" src="' + esc(p.thumb) + '">' : '<span class="ph0"></span>') +
-                '<span class="ln">' + esc(l.name) + '<small class="num">' + l.qty + ' × ' + inr(l.qty ? l.amount / l.qty : 0) + ' = ' + inr(l.amount) + '</small></span>' +
-                (canAdd && !mine && p ? '<button class="plus" data-add="' + esc(l.id) + '">+ Add</button>' : '<span></span>') + '</li>';
+                '<span class="ln">' + esc(l.name) + '<small class="num">' + l.qty + ' × ' + inr(l.qty ? l.amount / l.qty : 0) + (l.soldOut ? ' · <span class="oos">Out of stock</span>, not counted' : ' = ' + inr(l.amount)) + '</small></span>' +
+                (canAdd && !mine && p && !p.soldOut ? '<button class="plus" data-add="' + esc(l.id) + '">+ Add</button>' : '<span></span>') + '</li>';
             }).join('') + '</ul>' + (f.note ? '<p class="fnote">“' + esc(f.note) + '”</p>' : '') + '</div></div></div>';
         }).join('') + '</div>' +
         '<div class="gh"><h3>What we\'ll order from the shop</h3></div>' +
