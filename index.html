@@ -775,13 +775,14 @@ tr:last-child td { border-bottom: 0 }
   }
   document.addEventListener('click', function (e) { if (!e.target.closest('#pop')) closePop() });
   addEventListener('scroll', closePop, { passive: true });
-  // The shop's tax on the combined order (Settings → Tax), shared by order value. Whole rupees; the
-  // remainders go to the largest fractions so the shares add up to the tax exactly.
-  function splitTax(s) {
-    var tax = Number(config.tax) || 0, out = {};
-    if (!tax || !s.total) return out;
-    var parts = s.friends.map(function (f) { var x = tax * f.amount / s.total; return { name: f.name, n: Math.floor(x), r: x - Math.floor(x) } });
-    var left = tax - parts.reduce(function (a, p) { return a + p.n }, 0);
+  // A charge on the combined order (Settings → Tax, Delivery), shared by order value. Whole rupees; the
+  // remainders go to the largest fractions so the shares add up to the charge exactly.
+  function splitCharge(charge, s) {
+    var out = {};
+    charge = Number(charge) || 0;
+    if (!charge || !s.total) return out;
+    var parts = s.friends.map(function (f) { var x = charge * f.amount / s.total; return { name: f.name, n: Math.floor(x), r: x - Math.floor(x) } });
+    var left = charge - parts.reduce(function (a, p) { return a + p.n }, 0);
     parts.slice().sort(function (a, b) { return b.r - a.r }).forEach(function (p) { if (left > 0) { p.n++; left-- } });
     parts.forEach(function (p) { out[p.name] = p.n });
     return out;
@@ -793,7 +794,7 @@ tr:last-child td { border-bottom: 0 }
       if (!s.friends.length) { $('groupBody').innerHTML = '<p class="empty">No carts yet. Start yours from the Shop tab.</p>'; return }
       var items = s.friends.reduce(function (a, f) { return a + f.items }, 0), canAdd = !isLocked() && !!me.email;
       closePop();
-      var sh = splitTax(s);
+      var tx = splitCharge(config.tax, s), dl = splitCharge(config.delivery, s);
       // Who ordered each product in the shop list, keyed by product name like the summary's product rows.
       var who = {};
       s.friends.forEach(function (f) { f.lines.forEach(function (l) {
@@ -812,7 +813,8 @@ tr:last-child td { border-bottom: 0 }
           return '<div class="fc' + (mine ? ' mine' : '') + (open ? ' open' : '') + '" style="--i:' + i + '" data-fc="' + esc(f.name) + '">' +
             '<button class="hd" aria-expanded="' + open + '"><span class="avatar" style="--av:' + avatarColor(f.name) + '">' + esc(f.name.charAt(0).toUpperCase()) + '</span>' +
             '<span class="nm"><b>' + esc(f.name) + (mine ? '<em>You</em>' : '') + '</b><small>' + f.items + ' items · updated ' + esc(ago(f.updatedAt)) + '</small></span>' +
-            '<span class="amt num">' + inr(f.amount + (sh[f.name] || 0)) + (sh[f.name] ? '<small>' + inr(f.amount) + ' + ' + inr(sh[f.name]) + ' tax</small>' : '') + '</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>' +
+            '<span class="amt num">' + inr(f.amount + (tx[f.name] || 0) + (dl[f.name] || 0)) +
+              (tx[f.name] || dl[f.name] ? '<small>' + inr(f.amount) + (tx[f.name] ? ' + ' + inr(tx[f.name]) + ' tax' : '') + (dl[f.name] ? ' + ' + inr(dl[f.name]) + ' delivery' : '') + '</small>' : '') + '</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>' +
             '<div class="bd"><div><ul>' + f.lines.map(function (l) {
               var p = byId[l.id];
               return '<li>' + (p && p.image ? '<img alt="" loading="lazy" referrerpolicy="no-referrer" src="' + esc(p.thumb) + '">' : '<span class="ph0"></span>') +
